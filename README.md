@@ -1,6 +1,7 @@
 # DevOps_Projects
 
-Project based learnings at Dareyio 
+Project based learnings at Dareyio
+
 Projects to be implemented are listed below -
 
 1. **LAMP STACK IMPLEMENTATION -- AWS**
