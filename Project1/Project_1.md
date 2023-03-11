@@ -1,9 +1,9 @@
 Documentation for AWS LAMP STACK implementation
-This Project shows how to implement LAMP (Linux, Apache, MYSQL, PHP) technology on AWS
+This Projec shows how to implement LAMP (Linux, Apache, MYSQL, PHP) technology on AWS.
 
 Requirements for this project include an AWS account and a virtual server running on Ubuntu OS
 
-Before launching the Ubuntu, install some pre-requisites **OpenSSH**, [Install OpenSSH](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell#tabpanel_1_powershell) on your local machine that authenticates connection from your local device to the virtual server
+Before launching the Ubuntu, install some pre-requisites **OpenSSH**, [Install OpenSSH](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse?tabs=powershell#tabpanel_1_powershell) on your local machine that authenticates connection from your local device to the virtual server. 
 Launch the Ubuntu virtual server on AWS and update it
 
 to Update, run **sudo apt update**
@@ -29,32 +29,35 @@ Local connection is achieved through the ```curl``` command
 
 ```curl http://localhost:80 or curl http://127.0.0.1:80```
 
+
 ## ------------------------------------- INSTALLING MYSQL----------------------------------------
 
 Install mysql on the ubuntu server
 
-```sudo apt install mysql-server -y```
+``` sudo apt install mysql-server -y```
 
 Log into the MYSQL console
 
 ``` sudo mysql ```
 
-OUTPUT:
+OUTPUT: 
 mysql log in.png
 
+
 Configure the database user and log in password for mysql user
- ``` ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1'; ```
+ ``` ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1'; ``` 
 
 Exit the shell with ``` exit ```
 
-Run MYSQL interactive script. This script removes some inseure default settings and creates secure accessibilty settings.
-To run the script -
+Run MYSQL interactive script. This script removes some inseure default settings and creates secure accessibilty settings. 
+To run the script - 
 
 ``` sudo mysql_secure_installation ```
 
 To ensure access to MYSQL, run -
 
-```sudo mysql -p```
+```sudo mysql -p ```
+
 
 TO exit the console, type ``` exit ```
 
@@ -66,10 +69,10 @@ php-mysql -  a PHP module that allows PHP to communicate with MYSQL-based DBs.
 libapache2-mod-php - a module that enables apache to handle PHP files.
 
 We can install 3 modules at once, using the command
-``` sudo apt install php libapache2-mod-php php-mysql ```
+``` sudo apt install php libapache2-mod-php php-mysql ``` 
 
 Confirm PHP version
-``` php -v ```
+``` php -v ``` 
 
 php version.png
 
@@ -85,7 +88,7 @@ At this point, we have successfully installed all applications that make up the 
 We will set up a virtual host for the PHP script. Virtual hosts allows hosting of multiple domains on a single server.
 We will set up a domain named ``` staxxlamp ```.
 
-Create a directory for staxxlamp
+Create a directory for staxxlamp 
 
 ``` sudo mkdir /var/www/staxxlamp ```
 
@@ -108,13 +111,13 @@ This create a blank file, then paste the code below and save.
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
-```
+``` 
 
 list the new files in the ``sites-available`` directory`
 
 The output from above should look similar to this:
 
-``000-default.conf  default-ssl.conf  staxxlamp.conf``
+``000-default.conf  default-ssl.conf  staxxlamp.conf`` 
 
 So we have set ``/var/www/staxxlamp`` as the root folder of ``staxxlamp``
 
@@ -122,12 +125,14 @@ You can now use ``a2ensite`` command to enable the new virtual host:
 
 ``sudo a2ensite staxxlamp``
 
+
 You might want to disable the default website that comes installed with Apache. This is required if you’re not using a custom domain name, because in this case Apache’s default configuration would overwrite your virtual host. To disable Apache’s default website use ``a2dissite`` command , type:
 
-`` sudo a2dissite 000-default ``
+`` sudo a2dissite 000-default `` 
 
 OUTPUT:
 staxxlamp sudo.png
+
 
 To make sure your configuration file  is clean and doesn’t contain syntax errors, run:
 
@@ -137,9 +142,11 @@ Finally, reload Apache so these changes take effect:
 
 ``sudo systemctl reload apache2``
 
+
 Your new website is now active, but the web root /var/www/staxxlamp is still empty. Create an index.html file in that location so that we can test that the virtual host works as expected:
 
 ``sudo echo 'Hello LAMP from hostname' $(curl -s http://169.254.169.254/latest/meta-data/public-hostname) 'with public IP' $(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) > /var/www/staxxlamp/index.html``
+
 
 OUTPUT:
 sudo apachectl.png
@@ -156,11 +163,12 @@ You can also access your website in your browser by public DNS name, not only by
 
 You can leave this file in place as a temporary landing page for your application until you set up an ``index.php`` file to replace it. Once you do that, remember to remove or rename the ``index.html`` file from your document root, as it would take precedence over an ``index.php`` file by default.
 
+
 ## ------------------------ENABLE PHP ON THE WEBSITE -----------------------------
 
 With the default DirectoryIndex settings on Apache, an ``index.html`` will always take precedence over an ``index.php`` file. This is useful for setting up maintenance pages in PHP applications, by creating a temporary index.html file containing an informative message to visitors.
 
-Lets modify the setting and change precedence to the ``index.php`` file
+Lets modify the setting and change precedence to the `` index.php`` file
 
 So, we will edit the ``/etc/apache2/mods-enabled/dir.conf`` file and change the order in which the ``index.php`` file is listed within the ``DirectoryIndex`` directive:
 
@@ -173,13 +181,14 @@ So, we will edit the ``/etc/apache2/mods-enabled/dir.conf`` file and change the 
         #To this:
         DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
 </IfModule>
-```
+``` 
 
 Then reload apache to effect changes
 
-``sudo systemctl reload apache2``
+``sudo systemctl reload apache2`` 
 
-### Finally, we will create a PHP script to test that PHP is correctly installed and configured on your server
+
+### Finally, we will create a PHP script to test that PHP is correctly installed and configured on your server.
 
 Now that you have a custom location to host your website’s files and folders, we’ll create a PHP test script to confirm that Apache is able to handle and process requests for PHP files.
 
@@ -197,6 +206,7 @@ phpinfo();`
 save and close the file. Refresh the webpage, the result should be SIMILAR to the image below;
 
 phpinfo.png
+
 
 It is advisable to remove the file as it contains sensitive information about your server and php site config.
 
