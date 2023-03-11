@@ -1,6 +1,0 @@
-## LAMPSTACK IMPLEMENTATION AWS
-
-Implementing LAMP on AWS
-
-
-
