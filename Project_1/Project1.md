@@ -18,7 +18,8 @@ Verify correct installation of apache2
 **sudo systemctl status apache2**
 
 ![output of apache2 status]
-<https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/209189490-2a3ce645-a71f-4094-8d01-7523a699f8c5.png>
+209189490-2a3ce645-a71f-4094-8d01-7523a699f8c5.png
+
 
 **Verify Apache2 is accessible from the server**
 The default port for webservers to recieve traffic is Port 80. So edit the inbound rules on the EC2 security config, open TCP Port 80 to enable access to web server.
