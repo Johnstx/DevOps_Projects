@@ -18,7 +18,7 @@ Verify correct installation of apache2
 **sudo systemctl status apache2**
 
 ![output of apache2 status]
-https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/209189490-2a3ce645-a71f-4094-8d01-7523a699f8c5.png
+<https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/209189490-2a3ce645-a71f-4094-8d01-7523a699f8c5.png>
 
 **Verify Apache2 is accessible from the server**
 The default port for webservers to recieve traffic is Port 80. So edit the inbound rules on the EC2 security config, open TCP Port 80 to enable access to web server.
@@ -42,7 +42,7 @@ Log into the MYSQL console
 ``` sudo mysql ```
 
 OUTPUT:
-https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/209189490-2a3ce645-a71f-4094-8d01-7523a699f8c5.png
+<https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/209189490-2a3ce645-a71f-4094-8d01-7523a699f8c5.png>
 
 Configure the database user and log in password for mysql user
  ``` ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PassWord.1'; ```
@@ -73,7 +73,7 @@ We can install 3 modules at once, using the command
 Confirm PHP version
 ``` php -v ```
 
-https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/php%20version.png
+!(Project_1\images\php version.png)
 
 At this point, we have successfully installed all applications that make up the LAMP stack
 
@@ -129,7 +129,7 @@ You might want to disable the default website that comes installed with Apache. 
 `` sudo a2dissite 000-default ``
 
 OUTPUT:
-https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/staxxlamp%20sudo.png
+<https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/staxxlamp%20sudo.png>
 
 To make sure your configuration file  is clean and doesn’t contain syntax errors, run:
 
@@ -144,7 +144,7 @@ Your new website is now active, but the web root /var/www/staxxlamp is still emp
 ``sudo echo 'Hello LAMP from hostname' $(curl -s http://169.254.169.254/latest/meta-data/public-hostname) 'with public IP' $(curl -s http://169.254.169.254/latest/meta-data/public-ipv4) > /var/www/staxxlamp/index.html``
 
 OUTPUT:
-https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/sudo%20apachectl.png
+<https://github.com/Johnstx/DevOps_Projects/blob/a18cf592741a2bbd64d079af8c2d3232f1f511ed/Project_1/images/sudo%20apachectl.png>
 
 Now go to your browser and try to open your website URL using IP address:
 
