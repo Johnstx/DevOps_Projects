@@ -81,6 +81,7 @@ then exit.
 
 Output above shows successful remote connection from the `mysql client` to `mysql server` database. 
 
-Thank you. 
+Thank you.
+
 
 Job done!
