@@ -6,7 +6,7 @@ Enhance the architecture prepared in Project 8 by adding a Jenkins server, confi
 Here is how the updated architecture will look like upon competition of this project:
 ![Alt text](images/add_jenkins.png)
 
-This project will tulize same infrastructures as project 8 as its  a continuation (new concept here being the automation). Only a new "Jenkins" instance is introduced. 
+This project will utilize same infrastructures as project 8 as its  a continuation (new concept here being the automation). Only a new "Jenkins" instance is introduced. 
 
 ### STEP 1 - Install Jenkins server
 
