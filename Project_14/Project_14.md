@@ -298,94 +298,12 @@ ANSIBLE SET-UP
 - Install ansible plugin on Jenkins UI. *For guide for the set-up, watch video [here](https://youtu.be/PRpEbFZi7nI)*
 
 
-- Create a new **Jenkinsfile** - Delete the content of the one used in previous unit tests.
-- Along side the `Jenkinsfile` in the deploy directory, create an `ansible.cfg` file
+- Create a new **Jenkinsfile** As per [jenkinsfile](Ansible-config/ansible-configuration-13/deploy/Jenkinsfile)
+- Along side the `Jenkinsfile` in the deploy directory, create an `ansible.cfg` file as per [ansible.cfg](Ansible-config/ansible-configuration-13/deploy/Jenkinsfile)
 
-#### Ansible.cfg file
-paste the code below into the `ansible.cfg` file
-```
-[defaults]
-timeout = 160
-callback_whitelist = profile_tasks
-log_path=~/ansible.log
-host_key_checking = False
-gathering = smart
-ansible_python_interpreter=/usr/bin/python3
-allow_world_readable_tmpfiles=true
+- `Ansible.cfg` contains a configuration to define a custom ansible behaviour. 
 
-
-[ssh_connection]
-ssh_args = -o ControlMaster=auto -o ControlPersist=30m -o ControlPath=/tmp/ansible-ssh-%h-%p-%r -o ServerAliveInterval=60 -o ServerAliveCountMax=60 -o ForwardAgent=yes
-```
-The code above is  a custom ansible.cfg file to define a custom ansible behaviour. 
-The roles path is not defined in there yet, It will be defined dynamically in the ``jenkinsfile`` to enable jenkins job to be run from either git ``main`` or any ``branch``, seemlessly.
+- The roles path is not defined in it yet and will be done dynamically from the ``jenkinsfile`` to enable the jenkins jobs to be run from any git ``branch``, seemlessly.
  
-`ansible.cfg` must be exported to an environment variable to so that `Ansible` knows where to find the `Roles`
-
-### Jenkinsfile
-Find pipeline code in the ``jenkinsfile`` below
-```
-pipeline {
-  agent any
-
-  environment {
-      ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg"
-    }
-
-  parameters {
-      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
-    }
-
-  stages{
-      stage("Initial cleanup") {
-          steps {
-            dir("${WORKSPACE}") {
-              deleteDir()
-            }
-          }
-        }
-
-      stage('Checkout SCM') {
-         steps{
-            git branch: 'main', url: 'https://github.com/Johnstx/ansible-configuration-13.git'
-         }
-       }
-
-      stage('Prepare Ansible For Execution') {
-        steps {
-          sh 'echo ${WORKSPACE}' 
-          sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'  
-        }
-     }
-
-      stage('Run Ansible playbook') {
-        steps {
-           ansiblePlaybook become: true, colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yml'
-         }
-      }
-
-      stage('Clean Workspace after build'){
-        steps{
-          cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
-        }
-      }
-   }
-
-}
-```
-
-
-NB: Here ansible will be be designed run against the Dev environment.
-
-`dev` environment will have the architecture below
-```
-[nginx]
-<Nginx-Private-IP-Address ansible_ssh_user='ec2-user'>
-
-
-[db]
-<DB-Server-Private-IP-Address ansible_ssh_user='ubuntu'>
-
-```
-Note the instances type for `nginx` - RHEL and `db` - Ubuntu
+- `ansible.cfg` must be exported to an environment variable to so that `Ansible` knows where to find the `Roles`
 
