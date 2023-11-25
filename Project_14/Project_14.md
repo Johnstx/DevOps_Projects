@@ -298,12 +298,430 @@ ANSIBLE SET-UP
 - Install ansible plugin on Jenkins UI. *For guide for the set-up, watch video [here](https://youtu.be/PRpEbFZi7nI)*
 
 
-- Create a new **Jenkinsfile** As per [jenkinsfile](Ansible-config/ansible-configuration-13/deploy/Jenkinsfile)
-- Along side the `Jenkinsfile` in the deploy directory, create an `ansible.cfg` file as per [ansible.cfg](Ansible-config/ansible-configuration-13/deploy/Jenkinsfile)
+- Create a new **Jenkinsfile** As per [jenkinsfile](ansible-configuration-13/deploy/Jenkinsfile)
+- Along side the `Jenkinsfile` in the deploy directory, create an `ansible.cfg` file as per [ansible](ansible-configuration-13/deploy/ansible.cfg)
 
-- `Ansible.cfg` contains a configuration to define a custom ansible behaviour. 
+- `Ansible.cfg` contains a configuration to define a custom ansible behaviour. The roles path is not defined in it rather it is done dynamically in the ``jenkinsfile`` using the **[Stream Editor](https://www.gnu.org/software/sed/manual/sed.html)** ```sed```.
 
-- The roles path is not defined in it yet and will be done dynamically from the ``jenkinsfile`` to enable the jenkins jobs to be run from any git ``branch``, seemlessly.
- 
 - `ansible.cfg` must be exported to an environment variable to so that `Ansible` knows where to find the `Roles`
+- This ``ansible`` playbook is run against the ``dev`` environment.
+![Alt text](<images/2d main.jpg>) ![Alt text](<images/2d db.jpg>)
 
+
+
+``NB:``
+As seen in the `jenkinsfile`, Ansible runs against the `dev` environment and updates the resources present there as desired. But we also need to deploy similar or more programs to other environments, e.g ``ci``, ``sit``, etc. Manual configuration of the Jenkinsfile to point inventory to those environments is not an option neither is dedicating a git branch for each environment and hard coding the inventory value.
+Instead we ``Parameterize``
+
+### PARAMETERIZING ``Jenkinsfile`` FOR ANSIBLE DEPLOYMENT
+
+To deploy to other environment, we will need to use parameters.
+#### STEPS
+
+1. Update the ``ci` inventory with new severs -
+
+```
+[jenkins]
+<Jenkins-Private-IP-Address>
+
+[nginx]
+<Nginx-Private-IP-Address>
+
+[sonarqube]
+<SonarQube-Private-IP-Address>
+
+[artifact_repository]
+<Artifact_repository-Private-IP-Address>
+
+```
+
+2. Update the ``jenkinsfile`` to introduce parameterization.  Below is just one parameter. It has a default value in case if no value is specified at execution. It also has a description so that everyone is aware of its purpose.
+
+```
+pipeline {
+    agent any
+
+    parameters {
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+    }
+}
+...
+
+
+```
+
+3. In the Ansible execution section, remove the hardcoded inventory/dev and replace with `${inventory}. Find in [jenkinsfile](ansible-configuration-13/deploy/Jenkinsfile) Ln 36, Col 172.
+
+Then each time the playbook is run, it will need an input of the desired environment to run the program on 
+![Alt text](images/2bii.jpg)
+
+4. Notice that the default value loads up, but we can now specify which environment we want to deploy the configuration to. Simply type ``ci`` and hit Run
+
+
+
+
+
+5. Add another parameter. This time, introduce tagging in Ansible. You can limit the Ansible execution to a specific role or playbook desired.  Therefore, add an Ansible tag to run against webserver only. Test this locally first to get the experience. Once you understand this, update Jenkinsfile and run it from Jenkins.
+
+### CI/CD Pipeline for TODO application
+
+We already have ``tooling`` website as a part of deployment through Ansible. Here we will introduce another PHP application to add to the list of software products we are managing in our infrastructure. The good thing with this particular application is that it has unit tests, and it is an ideal application to show an end-to-end CI/CD pipeline for a particular application.
+
+Our goal here is to deploy the application onto servers directly from ``Artifactory`` rather than from ``git``. If you have not updated Ansible with an Artifactory role, simply use this guide to create an Ansible role for Artifactory (ignore the Nginx part). [Configure Artifactory on Ubuntu 20.04](https://www.howtoforge.com/tutorial/ubuntu-jfrog/). We will use this soon to spin up the  artifactory server.
+
+### PHASE 1 - Prepare Jenkins
+Fork the repository below into your GitHub account
+```
+https://github.com/Johnstx/php-todo.git
+```
+On the Jenkins server, install PHP, its dependencies and [Composer tool](https://getcomposer.org/) (Feel free to do this manually at first, then update your Ansible accordingly later)
+
+PHP install
+
+    yum module reset php -y
+    yum module enable php:remi-7.4 -y
+    yum install -y php php-common php-mbstring php-opcache php-intl php-xml php-gd php-curl php-mysqlnd php-fpm php-json
+    systemctl start php-fpm
+    systemctl enable php-fpm
+
+
+Composer install
+
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/bin/composer
+
+Verify Composer is installed or not
+
+    composer --version
+
+
+3. Install Jenkins plugins
+    1. [Plot plugin](https://plugins.jenkins.io/plot/)
+    2. [Artifactory plugin](https://www.jfrog.com/confluence/display/JFROG/Jenkins+Artifactory+Plug-in)
+
+Use of Plugins
+
+``Plot`` plugin - to display tests reports, and code coverage information.
+
+``Artifactory`` plugin - will be used to easily upload code artifacts into an Artifactory server.
+
+4. Let's Create that EC2 instance for the ``artifactory`` server, using ubuntu 20.04. 
+Then run the jenkinsfile to install artifactory from the artifactory roles created earlier.
+
+![Alt text](<images/3b artifactory install 2.jpg>)
+![Alt text](<images/3b iii artifactory install 2.jpg>)
+![Alt text](<images/3c artifactory login.jpg>)
+Browsing the ``artifactory`` server URL opens the jfrog UI as seen below. Login with default credentials and set up an artifactory repository named **PBL**
+![Alt text](<images/3c ii.jpg>)
+![Alt text](<images/6a artifact todo.jpg>)
+
+
+5. Configure Artifactory in the Jenkins UI
+![Alt text](<images/3b ii configuring aritfactory in the jenkins UI steps.jpg>)
+Configure the server ID, URL and Credentials, run Test Connection.
+![Alt text](<images/3c iii.jpg>)
+
+### PHASE 2 - Integrate Artifatory repository with Jenkins
+1. In the php-todo repo, create a dummy ``jenkinsfile``. ``Add`` and ``push`` to ``git`` repo
+2. Using Blue Ocean, create a multibranch Jenkins pipeline.
+3. On the database server, create a database and user as per below. *since we are using the ``roles``, this step is achieved by updating the database(mysql) roles to run this job. Privileges is granted to the jenkins server*
+  ![Alt text](<images/db roles.jpg>)
+**mysql-roles file**
+
+
+    Create database homestead;
+    CREATE USER 'homestead'@'%' IDENTIFIED BY 'sePret^i';
+    GRANT ALL PRIVILEGES ON * . * TO 'homestead'@'%';
+
+4. Update the database connectivity requirements in the file ``.env.sample``
+  code below was added to the ``.env.sample`` file in the ``php-todo`` repo 
+
+        DB_CONNECTION=mysql
+        DB_PORT=3306
+      
+ and the DB_HOST=<private IP of DB host>
+
+ viz;
+
+    DB_HOST=172.31.8.8
+    DB_DATABASE=homestead
+    DB_USERNAME=homestead
+    DB_PASSWORD=sePret^i
+    DB_CONNECTION=mysql
+    DB_PORT=3306
+
+5. Update Jenkinsfile with proper pipeline configuration
+
+        pipeline {
+            agent any
+
+          stages {
+
+            stage("Initial cleanup") {
+                  steps {
+                    dir("${WORKSPACE}") {
+                      deleteDir()
+                    }
+                  }
+                }
+          
+            stage('Checkout SCM') {
+              steps {
+                    git branch: 'main', url: 'https://github.com/Johnstx/php-todo.git'
+              }
+            }
+
+            stage('Prepare Dependencies') {
+              steps {
+                    sh 'mv .env.sample .env'
+                    sh 'composer install'
+                    sh 'php artisan migrate'
+                    sh 'php artisan db:seed'
+                    sh 'php artisan key:generate'
+              }
+            }
+          }
+        }
+
+
+**Notice the Prepare Dependencies section**
+
+The required file by PHP is `` .env`` so we are renaming ``.env.sample`` to ``.env``
+
+``Composer`` is used by`` PHP`` to install all the dependent libraries used by the application
+
+``php artisan`` uses the ``.env`` file to setup the required database objects - (After successful run of this step, login to the database, run ``show tables`` and see the tables being created)
+![Alt text](<images/3e db create.jpg>)
+![Alt text](<images/4 b.jpg>)
+![Alt text](<images/4 c.jpg>)
+
+
+1. Update the Jenkinsfile to include Unit tests step
+
+        stage('Execute Unit Tests') 
+          steps {
+                sh './vendor/bin/phpunit'
+          } 
+
+![Alt text](<images/4ii execute test.jpg>)
+
+### Phase 3 - Code Quality Analysis
+IT is impoertant to have a stage that looks at the quality of the code/app in the build. This stage handles that task
+This is one of the areas where developers, architects and many stakeholders are mostly interested in as far as product development is concerned. DevOps engineer, also have a role to play. Especially when it comes to setting up the tools.
+For PHP the most commonly tool used for code quality analysis is [phploc](https://phpqa.io/projects/phploc.html) (*since we are buidling a php application*). [Read the article here for more](https://matthiasnoback.nl/2019/09/using-phploc-for-quick-code-quality-estimation-part-1/)
+
+The data produced by phploc can be ploted onto graphs in Jenkins.
+
+1. Add the code analysis step in ``Jenkinsfile``. The output of the data will be saved in ``` build/logs/phploc.csv ``` file.
+
+        stage('Code Analysis') {
+          steps {
+                sh 'phploc app/ --log-csv build/logs/phploc.csv'
+
+          }
+        }
+
+
+2. Plot the data using plot Jenkins plugin.
+
+This plugin provides generic plotting (or graphing) capabilities in Jenkins. It will plot one or more single values variations across builds in one or more plots. Plots for a particular job (or project) are configured in the job configuration screen, where each field has additional help information. Each plot can have one or more lines (called data series). After each build completes the plots' data series latest values are pulled from the CSV file generated by phploc.
+Paste thecode below to the ``jenkinsfile``
+
+    stage('Plot Code Coverage Report') {
+      steps {
+
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Lines of Code (LOC),Comment Lines of Code (CLOC),Non-Comment Lines of Code (NCLOC),Logical Lines of Code (LLOC)                          ', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'A - Lines of code', yaxis: 'Lines of Code'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Directories,Files,Namespaces', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'B - Structures Containers', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Average Class Length (LLOC),Average Method Length (LLOC),Average Function Length (LLOC)', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'C - Average Length', yaxis: 'Average Lines of Code'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Cyclomatic Complexity / Lines of Code,Cyclomatic Complexity / Number of Methods ', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'D - Relative Cyclomatic Complexity', yaxis: 'Cyclomatic Complexity by Structure'      
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Classes,Abstract Classes,Concrete Classes', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'E - Types of Classes', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Methods,Non-Static Methods,Static Methods,Public Methods,Non-Public Methods', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'F - Types of Methods', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Constants,Global Constants,Class Constants', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'G - Types of Constants', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Test Classes,Test Methods', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'I - Testing', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Logical Lines of Code (LLOC),Classes Length (LLOC),Functions Length (LLOC),LLOC outside functions or classes ', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'AB - Code Structure by Logical Lines of Code', yaxis: 'Logical Lines of Code'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Functions,Named Functions,Anonymous Functions', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'H - Types of Functions', yaxis: 'Count'
+            plot csvFileName: 'plot-396c4a6b-b573-41e5-85d8-73613b2ffffb.csv', csvSeries: [[displayTableFlag: false, exclusionValues: 'Interfaces,Traits,Classes,Methods,Functions,Constants', file: 'build/logs/phploc.csv', inclusionFlag: 'INCLUDE_BY_STRING', url: '']], group: 'phploc', numBuilds: '100', style: 'line', title: 'BB - Structure Objects', yaxis: 'Count'
+
+
+      }
+    }
+
+![Alt text](<images/4ii phploc intalled and code analysis.jpg>)
+
+The plot UI illustration.
+![Alt text](<images/5a i plot graph.jpg>)
+
+3. Bundle the application code for into an artifact (archived package) upload to Artifactory
+
+        stage ('Package Artifact') {
+            steps {
+                    sh 'zip -qr php-todo.zip ${WORKSPACE}/*'
+            }
+            }
+
+4. Publish the resulted artifact into Artifactory
+
+        stage ('Upload Artifact to Artifactory') {
+                  steps {
+                    script { 
+                        def server = Artifactory.server 'artifactory-server'                 
+                        def uploadSpec = """{
+                            "files": [
+                              {
+                              "pattern": "php-todo.zip",
+                              "target": "PBL/php-todo",
+                              "props": "type=zip;status=ready"
+
+                              }
+                            ]
+                        }""" 
+
+                        server.upload spec: uploadSpec
+                      }
+                    }
+
+                }
+
+5. Deploy the application to the dev environment by launching Ansible pipeline.
+Create a ``ToDo`` server in the dev envrionment, and run on the ToDo server as host. See the ``site.yml`` file for reference
+
+        stage ('Deploy to Dev Environment') {
+            steps {
+            build job: 'ansible-project/main', parameters: [[$class: 'StringParameterValue', name: 'env', value: 'dev']], propagate: false, wait: true
+            }
+          }
+
+![Alt text](<images/6c i.jpg>)
+![Alt text](images/6cii.jpg)
+
+After a succesful deployment, see result -
+![Alt text](<images/6c todo app test.jpg>)
+
+The build job used in this step tells Jenkins to start another job. In this case it is the ``ansible-project`` job, and we are targeting the ``main`` branch. Hence, we have ``ansible-project/main``. Since the Ansible project requires parameters to be passed in, we have included this by specifying the `` parameters`` section. The name of the parameter is ``env`` and its value is ``dev``. Meaning, deploy to the Development environment.
+But how are we certain that the code being deployed has the quality that meets corporate and customer requirements? Even though we have implemented ``Unit Tests`` and ``Code Coverage`` Analysis with ``phpunit`` and ``phploc``, we still need to implement **Quality Gate** to ensure that ONLY code with the required code coverage, and other quality standards make it through to the environments.
+To achieve this, we need to configure **SonarQube** - An open-source platform developed by **SonarSource** for continuous inspection of code quality to perform automatic reviews with static analysis of code to detect bugs, code smells, and security vulnerabilities.
+
+### SonarQube Installation
+
+We have a role the ansible repo that will install SonarQube
+
+1. Create an instance for SonarQube, using **Ubuntu 20.04 With PostgreSQL as Backend Database**
+2. Update the `ci` environment in the ``/inventory`` with the above SonarQube (instance) ``private IP`` and ``user``, ``site.yml`` in `/playbooks` is also set up by ensuring the ``host`` is correctly named and **ONLY** `SonarQube` playbook is higlighted to run.
+![Alt text](<images/6dii sonar.jpg>)
+
+3. Add, commit and push to ``git``.
+
+    **NB**
+    1. The key of the *SonarQube* instance is added to **ssh agent**
+    2. An error was returned while running this playbook, to fix it, install this Ansible dependency for Postgresql Database
+
+            - ansible-galaxy collection install community.postgresql
+
+![Alt text](<images/6d iv postreg.jpg>)
+
+4. Update the ```ansible.cfg``` by adding the role-path.
+![Alt text](images/6diii.jpg)
+
+
+    SonarQube Installation in Jenkins
+![Alt text](images/6e.jpg)
+
+
+    SonarQube installed. Opened in browser using ``http://SonarQube-IP:9000/sonar`` 
+![Alt text](<images/6e sonar browser.jpg>)
+
+
+### CONFIGURE SONARQUBE AND JENKINS FOR QUALITY GATE
+
+1. In Jenkins, [SonarScanner plugin](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-jenkins/) is installed.
+
+2. SonarQube server plugin is then added in Jenkins 
+ 
+        Manage Jenkins > Configure System
+    ![Alt text](<images/6e sonar config.jpg>)
+
+3. Generate authentication token in SonarQube 
+  ```
+  User > My Account > Security > Generate Tokens
+  ```
+![Alt text](<images/sonar token.png>)
+
+4. Configure Quality Gate Jenkins Webhook in SonarQube – The URL points to the Jenkins server *http://{JENKINS_HOST}/sonarqube-webhook/*
+```
+  Administration > Configuration > Webhooks > Create
+```
+![Alt text](<images/sonar qualitygate.png>)
+
+5. Setup SonarQube scanner from Jenkins - Global Tool Configuration
+  ```
+  Manage Jenkins > Global Tool Configuration 
+  ```
+![Alt text](<images/sonarqube scanner.png>)
+
+6. Update Jenkins Pipeline to include **SonarQube** scanning and Quality Gate
+Below is the snippet for a **Quality Gate** stage in ``Jenkinsfile``.
+
+
+        stage('SonarQube Quality Gate') {
+            environment {
+                scannerHome = tool 'SonarQubeScanner'
+            }
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+
+            }
+        }
+
+**NB** The above step will fail because we have not updated `sonar-scanner.properties
+The above script will install scanner tool alrightbbut we need to confire the the properties, so we go into the ``/tools`` directory on the server and configure the ``properties`` file which SonarQube will require to function during the pipeline execution.
+
+    cd /var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQubeScanner/conf/
+
+7. Open ``sonar-scanner.properties`` file
+
+        sudo vi sonar-scanner.properties
+
+Add configuration related to ``php-todo`` project
+
+
+    sonar.host.url=http://<SonarQube-Server-IP-address>:9000
+    sonar.projectKey=php-todo
+    #----- Default source code encoding
+    sonar.sourceEncoding=UTF-8
+    sonar.php.exclusions=**/vendor/**
+    sonar.php.coverage.reportPaths=build/logs/clover.xml
+    sonar.php.tests.reportPath=build/logs/junit.xml
+
+![Alt text](<images/7a sonarqube scanner config.jpg>)
+
+**HINT:** To know what exactly to put inside the sonar-scanner.properties file, SonarQube has a configurations page where you can get some directions.
+
+Lets examint the configuration of the scanner tool on the jenkins server - 
+
+    cd /var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQubeScanner/bin
+
+List the content to see the scanner tool ``sonar-scanner``.
+
+![Alt text](images/8.jpg)
+
+8. Generate Jenkins code, navigate to the dashboard for the ``php-todo`` pipeline and click on the **Pipeline Syntax** menu item
+
+        Dashboard > php-todo > Pipeline Syntax
+
+  Click on Steps and select `withSonarQubeEnv`
+
+  Within the generated block, you will use the `sh` command to run shell on the server. For more advanced usage in other projects, you can add to bookmarks this SonarQube documentation page in your browser.
+  
+  ![Alt text](<images/8 pipeline.png>)
+
+
+
+- Navigate to php-todo project in SonarQube
+
+The quality gate we just included has no effect. Why? Well, because if you go to the SonarQube UI, you will realise that we just pushed a poor-quality code onto the development environment. There re bugs, and there is 0.0% code coverage. (*code coverage is a percentage of unit tests added by developers to test functions and objects in the code*)
+
+A cllick on php-todo project for further analysis, one will find that there is 6 hours' worth of technical debt, code smells and security issues in the code.
+
+![Alt text](<images/8 quality gate.png>)
