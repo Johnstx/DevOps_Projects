@@ -298,7 +298,84 @@ Target groups is created for Nginx and webservers (wordpress and tooling)
 1. Make use of the AMI to set up a launch template
 2. Ensure the Instances are launched into a public subnet
 3. Assign appropriate security group
-4. Configure Userdata to update yum package repository and install nginx. See the [nginx-userdata](https://github.com/Johnstx/DevOps_Projects/blob/main/Project_15/NGINX-userdata.md)
+4. Configure Userdata to update yum package repository and install nginx. See the [nginx-userdata](https://github.com/Johnstx/DevOps_Projects/blob/main/Project_15/NGINX-userdata.md).
+*Ensure the accesspoint are set to reflect the internal load balancer dns address*
 5. Create Launch template.
 
+**For Webserver - wordpress**
+1. Make use of the AMI to set up a launch template
+2. Ensure the Instances are launched into a private subnet(private subnet 1)
+3. Assign appropriate security group
+4. Configure Userdata to update yum package repository and install wordpress. See [wordpress-userdata](https://github.com/Johnstx/DevOps_Projects/blob/34511bd6b963b719b0d58a3a5e08a35ded1c3d59/Project_15/wordpress-userdata.md)
+*Ensure to update the userdata with the efs accesspoint for wordpress*.
+*Also, ensure the rds database endpoint is updated in the userdata*.
+5. Create the template.
 
+
+**For Tooling**
+1. Make use of the AMI to set up a launch template
+2. Ensure the Instances are launched into a private subnet(private subnet 1)
+3. Assign appropriate security group
+4. Configure Userdata to update 
+*Ensure to update the userdata with the efs accesspoint for tooling*
+*Also, ensure the rds database endpoint is updated in the userdata*.
+5. Create the template.
+
+
+### Create Autoscaling Group
+**For Nginx**
+
+1. Select the `nginx launch template`
+2. Select the VPC
+3. Select both public subnets
+4. Enable Application Load Balancer for the AutoScalingGroup (ASG)
+5. Select the ``nginx target group`` created earlier.
+6. Ensure health checks for both EC2 and ALB
+7. The desired capacity is 2
+8. Minimum capacity is 2
+9. Maximum capacity is 4
+10. Set scale out if CPU utilization reaches 90%
+11. Ensure there is an SNS topic to send scaling notifications.
+
+**For Bastion**
+
+1. Select the `Bastion launch template`
+2. Select the VPC
+3. Select both public subnets
+4. Enable Application Load Balancer for the AutoScalingGroup (ASG)
+5. Select the `bastion target group` created earlier 
+6. Ensure that you have health checks for both EC2 and ALB
+7. The desired capacity is 2
+8. Minimum capacity is 2
+9. Maximum capacity is 4
+10. Set scale out if CPU utilization reaches 90%
+11. Ensure there is an SNS topic to send scaling notifications
+
+
+**For Wordpress**
+
+1. Select the `wordpress launch template`
+2. Select the VPC
+3. Select private subnets 1 & 2
+4. Enable Application Load Balancer for the AutoScalingGroup (ASG)
+5. Select the `wordpress target group` created earlier
+6. Ensure that you have health checks for both EC2 and ALB
+7. The desired capacity is 2
+8. Minimum capacity is 2
+9. Maximum capacity is 4
+10. Set scale out if CPU utilization reaches 90%
+11. Ensure there is an SNS topic to send scaling notifications
+
+**For Tooling**
+
+1. Select the `tooling launch template`
+2. Select the VPC
+3. Select private subnets 1 & 2
+4. Enable Application Load Balancer for the AutoScalingGroup (ASG)
+5. Select the `tooling target group` created earlier
+6. Ensure that you have health checks for both EC2 and ALB
+7. The desired capacity is 2
+8. Minimum capacity is 2
+9. Maximum capacity is 4
+10. Set scale out if CPU utilization reaches 90%
+11. Ensure there is an SNS topic to send scaling notifications
