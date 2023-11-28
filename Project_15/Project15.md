@@ -379,3 +379,25 @@ Target groups is created for Nginx and webservers (wordpress and tooling)
 9. Maximum capacity is 4
 10. Set scale out if CPU utilization reaches 90%
 11. Ensure there is an SNS topic to send scaling notifications
+
+### Configuring DNS with Route53
+Earlier in this project you registered a free domain with Freenom and configured a hosted zone in Route53. But that is not all that needs to be done as far as DNS configuration is concerned.
+You need to ensure that the main domain for the WordPress website can be reached, and the subdomain for Tooling website can also be reached using a browser.
+Create other records such as CNAME, alias and A records.
+NOTE: You can use either CNAME or alias records to achieve the same thing. But alias record has better functionality because it is a faster to resolve DNS record, and can coexist with other records on that name. Read here to get to know more about the differences.
+
+Create an alias record for the root domain and direct its traffic to the ALB DNS name.
+Create an alias record for tooling.<yourdomain>.com and direct its traffic to the ALB DNS name.
+
+
+Check the healthchecks to ensure they are healthy
+
+![Alt text](<images/healthchecks nginx.jpg>)
+![Alt text](<images/healthchecks wp.jpg>)
+
+Copy the domain names and test on the browser and check the site availabilty, if successful both tooling and wordpress sites should go live!
+
+![Alt text](<images/wp webpage.jpg>)
+![Alt text](<images/tooling web page.jpg>)
+
+.. Job Done. 
