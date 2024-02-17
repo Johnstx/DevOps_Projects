@@ -1374,3 +1374,6 @@ tags = {
   Billing-Account = "1234567890"
 }
 ```
+
+Resources look good for launch, RE-CHECK.
+RUN terraform plan and apply. Inspect the created resources through the AWS console. 
