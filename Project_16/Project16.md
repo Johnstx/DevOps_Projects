@@ -34,7 +34,7 @@ The name of the S3 created will appear with the output.
 
 Now lets automate 'project 15' with Terraform.
 
-First, we create a diretoty structure - 
+First, we create a directory structure - 
 
 * Create a folder called ``PBL``
 * Create a file in the folder, name is ``main.tf``
@@ -58,7 +58,7 @@ Provider being used is `aws`. The `region` will be declared as a variable then u
 
 
 ### VPC Resource Block
-Same principle applied in the provider block above is aplieed in this ``VPC`` recsource block, the arguments of the vpc block is are declared as varibales first then updated in the ``VPC`` resource block.
+Same principle applied in the provider block above is applied in this ``VPC`` resource block, the arguments of the vpc block  are declared as variables first then updated in the ``VPC`` resource block.
 
     variable "region" {
         default = "eu-central-1"
@@ -100,7 +100,7 @@ Same principle applied in the provider block above is aplieed in this ``VPC`` re
 
 ### Subnets
 
-The subnet block has arguments like vpc_id(to indicate the vpc where the subnet resides), count(how many subnets to be created), cidr_block, availability zone etc. Some arguments however may vary with the aws region or with the requirements of the infrastructure e.g availability zone. 
+The subnet block has arguments like vpc_id (to indicate the vpc where the subnet resides), count (how many subnets to be created), cidr_block, availability zone etc. Some arguments however may vary with the aws region or with the requirements of the infrastructure e.g availability zone. 
 
 **Loops & Data sources** - **Terraform** will use these concepts to update our block with info outside of **Terraform**, in this case, info about availability zones in **AWS**.
 
