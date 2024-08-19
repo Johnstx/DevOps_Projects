@@ -4,7 +4,7 @@
 This project will utilize DevOps concepts/tools in automating some routine tasks we have done previously. Automation will be done using [Ansible Configuration Management](https://www.redhat.com/en/topics/automation/what-is-configuration-management#:~:text=Configuration%20management%20is%20a%20process,in%20a%20desired%2C%20consistent%20state.&text=Managing%20IT%20system%20configurations%20involves,building%20and%20maintaining%20those%20systems.), Ansible codes are written in a declarative language called [YAML](https://en.wikipedia.org/wiki/YAML).
 
 #### REQUIREMENTS
- - **Ansible Client to as a [Jump Server](https://en.wikipedia.org/wiki/Jump_server)/[Bastion Host](https://en.wikipedia.org/wiki/Bastion_host)**
+ - **Ansible Client to serve as a [Jump Server](https://en.wikipedia.org/wiki/Jump_server)/[Bastion Host](https://en.wikipedia.org/wiki/Bastion_host)**
 
 A Jump Server (sometimes also referred as Bastion Host) is an intermediary server through which access to internal network can be provided.
 If you think about the current architecture you are working on, ideally, the webservers would be inside a secured network which cannot be reached directly from the Internet.
@@ -16,7 +16,7 @@ That means, even DevOps engineers cannot ``SSH`` into the Web servers directly a
  - Create a simple Ansible playbook to automate servers configurations
 
 
-#### STEP 1 - INSTALL AND CONFIGURE ANSIBLE ON EC2 INSTANCE(HUMP SERVER)
+#### STEP 1 - INSTALL AND CONFIGURE ANSIBLE ON EC2 INSTANCE(JUMP SERVER)
 
 1. Update the ``name`` tag on the ``Jenkins`` Ec2 instance to ``Jenkins-Ansible. We will use this server to run playbooks.
 
