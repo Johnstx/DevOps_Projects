@@ -8,7 +8,7 @@ This project will utilize DevOps concepts/tools in automating some routine tasks
 
 A Jump Server (sometimes also referred as Bastion Host) is an intermediary server through which access to internal network can be provided.
 If you think about the current architecture you are working on, ideally, the webservers would be inside a secured network which cannot be reached directly from the Internet.
-That means, even DevOps engineers cannot ``SSH`` into the Web servers directly and can only access it through a Jump Server – it provide better security and reduces [attack surface.](https://en.wikipedia.org/wiki/Attack_surface)
+That means, even DevOps engineers cannot ``SSH`` into the Web servers directly and can only access it through a Jump Server – it provides better security and reduces [attack surface.](https://en.wikipedia.org/wiki/Attack_surface)
 
 
 ### STEPS
@@ -21,7 +21,7 @@ That means, even DevOps engineers cannot ``SSH`` into the Web servers directly a
 1. Update the ``name`` tag on the ``Jenkins`` Ec2 instance to ``Jenkins-Ansible. We will use this server to run playbooks.
 
 
-2. Create a new Repository in GitHub, name iy ``ansible-config-mgt``.
+2. Create a new Repository in GitHub, name it ``ansible-config-mgt``.
 
 ![Alt text](images/2.jpg)
 
