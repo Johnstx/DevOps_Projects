@@ -100,11 +100,10 @@ Then run ``terraform init`` and procced to type ``yes`` if the ouput is desired.
 
 
 ![DynamoDB table](<images/7 dyhnamodb table.jpg>)
-*DynamoDB containing the 'lock' table*
+*DynamoDB containing the 'locks' table*
 
 
-More observation into the DynamoDB table to check changes between before ``terraform apply`` and after.
-
+More observation into the DynamoDB table to check changes BEFORE ``terraform apply`` and AFTER.
 ![DynamoDB tables](<images/7a dynamodb table.jpg>)
 *Before ``terraform plan``*
 
