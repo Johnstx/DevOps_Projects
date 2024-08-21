@@ -96,5 +96,32 @@ Check the logs and verify that everything has run correctly. Note that Terraform
 ![alt text](<Images/6 AFTER AMIs.jpg>)
 
 
-Oberserve the resources and ensure it suits with the desired plan.
+Oberserve the resources and ensure it suits the desired plan.
 ![AWS resources](Images/4.jpg)
+
+This setup has provsioned the architecture required for the business sites.
+
+Now we have to set up the deploy the the requirements in the servers so that the business logic can commence. Here we use 
+**ansible**.
+
+In the **Ansible Roles** directory:-
+* Update the **tooling** and **wordpress** ``../task/setup-db.yml`` with the **AWS RDS endpoint** provisioned. *seen in the AWS RDS UI*
+
+* Update the ``../task/main.yml`` for the Tooling & Wordpress roles with the file system ID ``fs`` and accesspoint ``fsap``, from the **EFS** resource in **AWS**
+
+* Update the ansible script with the internal load balancer DNS for Nginx reverse proxy (**nginx.con.j2 file**).
+![alt text](<Images/why east-2.jpg>)
+
+
+*Ensure database credentials are accurate*.
+
+Run the ``ansible playbook``
+
+![alt text](<Images/playboook run 1.jpg>)
+
+Go through the websites and ensure access is successful.
+
+
+END.
+
+This project successfully used Terraform IAC, terraform modules, packer and ansible to provision an AWS architecture to setup 2 websites for a single comapany with the use of NGINX as a reverse proxy, including other AWS services e.g EFS - to share files, RDS - DB resource, S3 bucket - Terraform backend etc.
