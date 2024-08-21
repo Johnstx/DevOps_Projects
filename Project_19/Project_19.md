@@ -124,4 +124,4 @@ Go through the websites and ensure access is successful.
 
 END.
 
-This project successfully used Terraform IAC, terraform modules, packer and ansible to provision an AWS architecture to setup 2 websites for a single comapany with the use of NGINX as a reverse proxy, including other AWS services e.g EFS - to share files, RDS - DB resource, S3 bucket - Terraform backend etc.
+This project has successfully employed use of  Terraform cloud with Terraform IAC, terraform modules, packer and ansible to provision an AWS architecture to setup 2 websites for a single comapany with the use of NGINX as a reverse proxy, including other AWS services e.g EFS - to share files, RDS - DB resource, S3 bucket - Terraform backend etc.
