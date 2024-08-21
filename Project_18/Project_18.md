@@ -136,3 +136,92 @@ Go to the S3 console, and observe the versions.
 ![versions content](<images/8b versions content.jpg>)
 
 *With help of remote backend and locking configuration that we have just configured, collaboration is no longer a problem.*
+
+### Environments
+It is very common to have separate workload environments which contains a collection of resources to achieve tasks at diffrerent stages of a job/project. Such isolation of environments into ``dev``, ``sit``, ``uat``, ``prod``, ``preprod`` is implemented to safely and neatly carry out these tasks.
+Separation of environments can be achieved using one of two methods:
+
+a. [Terraform Workspaces](https://www.terraform.io/docs/language/state/workspaces.html)
+
+b. **Directory** based separation using ``terraform.tfvars`` file.
+
+**Terraform workspaces** are used when the environments have some significant similarities.
+while  **Directory** are used to separate environments with significant configuration differences.
+
+Another way to fine-tune the IAC is to employ the use of **refactoring** codes.
+
+
+### Refactoring Security groups with ``dynamic block``
+
+For repetitive blocks of code you can use ``dynamic blocks`` in Terraform. [Learn more](https://youtu.be/tL58Qt-RGHY)
+
+*security groups*
+![alt text](<images/dynamic ingress main.jpg>)
+
+*Refactoring  security group*
+![alt text](<images/dynamic ingress.jpg>).
+
+
+### Refactoring EC2  with ``Map`` and ``Lookup``.
+An example of when ``Map`` and ``Lookup`` functions can be used is in the provisioning of AMI. Lets say an AMI which by the way is a regional service is provisioned in a certain region, ``us-east-1`` for example, and during the course of the projects, the region was changed to another, say ``us-west-2``, and we need to maintain same AMI's used in the former region, we can then use the ``Map`` and ``Lookup`` functions for this.
+
+``Map`` uses a ``kay`` and ``value`` pairs as a data structure that can be set as a default type for variables.
+
+```
+variable "images" {
+    type = "map"
+    default = {
+        us-east-1 = "image-1234"
+        us-west-2 = "image-23834"
+    }
+}
+```
+
+To select the required AMI oer region, use ``Lookup`` function --
+``lookup(map, key, [default])``
+
+Note: A default value is better to be used to avoid failure whenever the map data has no key.
+
+```
+resource "aws_instace" "web" {
+    ami  = "${lookup(var.images, var.region), "ami-12323"}
+}
+```
+
+Now, the lookup function will load the variable ```images``` using the first parameter. But it also needs to know which of the key-value pairs to use. That is where the second parameter comes in. The key ```us-east-1``` could be specified, but then we will not be doing anything dynamic there, but if we specify the variable for region, it simply resolves to one of the keys. That is why we have used ``var.region`` in the second parameter.
+
+
+### Use of conditional Expressions: Will be used in subsequent projects
+
+
+### Use of Modules
+**Moodules** are another way of building a  comprehensive and reusable IAC code strucuture.
+Modules serve as containers that allow to logically group Terraform codes for similar resources in the same domain (e.g., Compute, Networking, AMI, etc.). One root module can call other child modules and insert their configurations when applying Terraform config. This concept makes your code structure neater, and it allows different team members to work on different parts of configuration at the same time.
+
+Module is just a collection of .tf and/or .tf.json files in a directory.
+
+Refactoring using Modules makes your project structure appear like -- *see below*
+
+![modules](images/modulesnew.jpg)
+
+### Calling up Modules in the **root module** -- 
+
+a. Import module as a ``source`` and have access to its variables via ``var`` keyword:
+
+```
+module "network" {
+  source = "./modules/network"
+}
+
+```
+
+![rootmodule](images/rootmoduleVPC.jpg).
+
+
+b. Refer to a module's output by specifying the full path to the output variable by using module.``%module_name%.%output_name%`` construction:
+
+```
+subnets-compute = module.network.public_subnets-1
+```
+
+In this page, we have developed and refactored AWS Infracstructure as Code with Terraform!.
