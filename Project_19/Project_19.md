@@ -126,4 +126,12 @@ END.
 
 
 
-This project has successfully employed use of  Terraform cloud with Terraform IAC, terraform modules, packer and ansible to provision an AWS architecture to setup 2 websites for a single comapany with the use of NGINX as a reverse proxy, including other AWS services e.g EFS - to share files, RDS - DB resource, S3 bucket - Terraform backend etc.
+#### This project has depoyed two custom websites for a business enterprise, using the following programs/tools-  
+* AWS cloud services.
+    * EFS - File share
+    * RDS - Database
+    * S3 bucket -Storage / Terraform backend 
+* Terraform cloud
+* Terraform IAC with its features like terraform modules
+* Packer and Ansible to configure an AWS architecture to setup.
+* NGINX as a reverse proxy.
