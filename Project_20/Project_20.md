@@ -74,10 +74,13 @@ docker ps -a
 
 
 
-**Approach 1**
+### **Approach 1**
 Direct connection to the container running the MySQL server.
 ```
 docker exec -it toolingdb mysql -uroot -p
 ```
 ![Connection to the DB](<images/4 - approach one - direct connection.jpg>)
 
+
+
+### **Approach 2**
