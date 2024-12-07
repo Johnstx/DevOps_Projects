@@ -69,7 +69,10 @@ docker ps -a
 **Step 3: Connecting to the MySQL Docker Container**
 *Connection to the database container can be achieved through  two ways.*
 ***Approach 1**: Connecting directly to the container running the MySQL server*.
+
 ***Approach 2**: Use a second container as a MySQL client*
+
+
 
 **Approach 1**
 Direct connection to the container running the MySQL server.
