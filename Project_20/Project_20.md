@@ -29,7 +29,52 @@ This project will implement containerization using **[Docker](https://www.docker
 As a Proof Of Concept (POC), will use a simple DevOps tooling PHP website using MySQL as a Database. *both ends will make use of dockerization concept*
 
 
-### MySQL set-up
+#### MySQL set-up
 *We will use  a pre-built MySQL database **container**, configure it to our taste and ensure request from PHP application is possible.*
 
-!. 
+**Step 1: Pull MySQL Docker Image from [Docker Hub Registry](https://hub.docker.com/)**
+
+Pull the appropriate [docker image for MySQl](https://hub.docker.com/_/mysql). *Download a specific version or go for the latest release. (**note the tags**)*.
+
+* To download the image, run - 
+```
+docker pull mysql/mysql-server:8.0
+```
+
+* Confirm the image download
+```
+docker images ls
+```
+![docker pull and image list](<images/1 - docker pull and image ls.jpg>)
+
+**Step 2: Deploy the MySQL container**
+1. *After image pull is passed, next launch the container with -*
+
+```
+docker run --name toolingdb -e MYSQL_ROOT_PASSWORD=custompassword -d mysql/mysql-server:8.0
+```
+![MySQL container](<images/2 - docker run.jpg>)
+
+
+2. *Confirm status of the container*
+
+```
+docker ps -a
+```
+![docker ps](<images/3 - docker ps.jpg>)
+
+
+*You should see the newly created container listed in the output. It includes container details, one being the status of this virtual environment. The status changes from health: starting to healthy, once the setup is complete.*
+
+**Step 3: Connecting to the MySQL Docker Container**
+*Connection to the database container can be achieved through  two ways.*
+***Approach 1**: Connecting directly to the container running the MySQL server*.
+***Approach 2**: Use a second container as a MySQL client*
+
+**Approach 1**
+Direct connection to the container running the MySQL server.
+```
+docker exec -it toolingdb mysql -uroot -p
+```
+![Connection to the DB](<images/4 - approach one - direct connection.jpg>)
+
