@@ -3,6 +3,10 @@
 
 ### Containerization using **DOCKER**
 
+This project provides a walkthrough for deploying an application in a container, a concept called containerization.
+This process has been widely adopted because it has simplified the building, deployment and usage of even complex applications and in same light has led to cost and time saving in running various projects/jobs.
+
+This project highlights the key steps in achieving a successful migration of an app (this could be any application)
 This lab will migrate a custom application, **[Enterprise website deployment](https://github.com/Johnstx/DevOps_Projects/tree/main/Project_19)** which was previously deployed via a VM based environment to the cloud employing use of docker  container.
 
 ### Solutions used -
