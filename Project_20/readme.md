@@ -4,16 +4,19 @@
 ### Containerization using **DOCKER**
 
 This project provides a walkthrough for deploying an application in a container, a concept called containerization.
-This process has been widely adopted because it has simplified the building, deployment and usage of even complex applications and in same light has led to cost and time saving in running various projects/jobs.
+This technology which has been widely adopted because it has simplified the building and deployments in environments where mulitple applications are required to run to provide a business solution.
 
-This project highlights the key steps in achieving a successful migration of an app (this could be any application)
+### Benefits of its use.
+If you are a DevOps engineer, developers will often send you applications to deploy, your environment has to be configured and set up like the developers's if the application must run, if not it won't and the dev will most times say "but it runs on my machine". 
+Containerization enables the dev and the team to deploy application so it can run in a container by packaging the application in a [dockerfile](https://docs.docker.com/reference/dockerfile/) and then building it into a [docker image](https://docs.docker.com/reference/cli/docker/image/).
+
+This project highlights the key steps in achieving a successful migration of an app or apps.
 This lab will migrate a custom application, **[Enterprise website deployment](https://github.com/Johnstx/DevOps_Projects/tree/main/Project_19)** which was previously deployed via a VM based environment to the cloud employing use of docker  container.
 
-### Solutions used -
-* Docker Engine
-* Docker deamon
-* Docker registry
-* Jenkins 
+### Technologies and Tools applied :-
+* [Docker Engine](https://docs.docker.com/engine/install/)
+* [An account in Docker registry](https://hub.docker.com/)
+* [Jenkins](https://www.jenkins.io/doc/)
 
 ### **Prerequisites:-**
 
