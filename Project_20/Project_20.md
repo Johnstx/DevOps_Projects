@@ -81,7 +81,53 @@ docker exec -it toolingdb mysql -uroot -p
 ```
 ![Connection to the DB](<images/4 - approach one - direct connection.jpg>)
 
-
+Provide the root password when prompted. With that, you have connected the MySQL client to the server.
+Finally, change the server root password to protect your database.
 
 ### **Approach 2**
+First, create a network:
 
+Creating a custom network is not necessary because even if we do not create a network, Docker will use the default network for all the containers you run. By default, the network we created above is of DRIVER Bridge. 
+Verify by running the ```docker network ls``` command.
+
+But there are use cases where this is necessary. For example, if there is a requirement to control the cidr range of the containers running the entire application stack. This will be an ideal situation to create a network and specify the --subnet.
+
+For clarity's sake, we will create a network with a subnet dedicated for our project and use it for both MySQL and the application so that they can connect.
+
+```
+docker network create --subnet=172.18.0.0/24 tooling_app_network 
+```
+
+Run the MySQL Server container using the created network
+But before that,  create an environment variable to store the root password:
+```
+export MYSQL_PW=<root-secret-password>
+```
+Then, pull the image and run the container, all in one command like below:
+
+```
+docker run --network tooling_app_network -h mysqlserverhost --name=mysql-server -e MYSQL_ROOT_PASSWORD=$MYSQL_PW  -d mysql/mysql-server:8.0
+```
+![deploying conainer within a docker network](<images/6 - mysql-server with network.jpg>)
+
+Flags used
+
+    * -d runs the container in detached mode
+    * --network connects a container to a network
+    * -h specifies a hostname
+If the image is not found locally, it will be downloaded from the registry.
+
+Run ``docker ps -a`` to view the created resource.
+
+Connecting to the MySQL server.
+
+It is best practice not to connect to the MySQL server remotely using the root user. 
+Therefore, create an SQL script that will create a user we can use to connect remotely.
+
+Create a file and name it ``create_user.sql`` and add the below code in the file:
+
+```
+CREATE USER '<staxx>'@'%' IDENTIFIED BY '<movement>';
+GRANT ALL PRIVILEGES ON * . * TO '<staxx>'@'%';
+```
+*NB*: Change <staxx> and <movement> to your unique name and password respectively
