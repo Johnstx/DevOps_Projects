@@ -146,6 +146,8 @@ docker exec -i mysql-server mysql -uroot -p$MYSQL_PW < ./create_user.sql
 mysql: [Warning] Using a password on the command line interface can be insecure.
 
 ```
+![alt text](<images/10 - dbconnect-php.jpg>)
+
 
 
 ### 3. Connecting to the MySQL server from a second container running the MySQL client utility
@@ -181,3 +183,31 @@ Flags used:
 
 ### 4. Prepare database schema
 Now you need to prepare a database schema so that the Tooling application can connect to it.
+First, clone the source code of the tooling app repo
+
+1. Clone the repo from [here](https://github.com/Johnstx/tooling.git)
+
+```
+git clone https://github.com/Johnstx/tooling.git
+```
+
+2. Export the location of the SQL file
+
+```
+export tooling_db_schema=~/tooling/html/tooling_db_schema.sql
+```
+Find the ``tooling_db_schema.sql`` in the ``html`` folder of cloned ``repo.``
+
+3. Use the SQL script to create the database and prepare the schema. With the``docker exec`` command, you can execute a command in a running container.
+
+```
+docker exec -i mysql-server mysql -uroot -p$MYSQL_PW < $tooling_db_schema
+```
+5. Update the ``db_conn.php`` file with connection details to the database
+
+```
+$servername = "mysqlserverhost";
+$username = "staxx";
+$password = "movement";
+$dbname = "toolingdb";
+``` 
