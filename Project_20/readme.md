@@ -31,8 +31,8 @@ This project will be run on a local workstation, another option would be to spin
 
 **NB:** The tooling application used here as POC is an app deployed by the tech team to apply DevOps concepts  in their work environment. 
 
-2. [Pull MySQL Docker Image from Docker Hub Registry](https://github.com/Johnstx/DevOps_Projects/blob/main/Project_20).
-3. [Deploy the MySQL Container to your Docker Engine](https://github.com/Johnstx/DevOps_Projects/blob/main/Project_20).
+2. [Pull MySQL Docker Image from Docker Hub Registry](https://github.com/Johnstx/DevOps_Projects/blob/main/Project_20/Project_20.md).
+3. [Deploy the MySQL Container to your Docker Engine](https://github.com/Johnstx/DevOps_Projects/blob/main/Project_20/Project_20.md).
 4. [Connecting to the MySQL Docker Container]()
 5. [Prepare database schema]()
 6. [Clone the Tooling-app repository]()
