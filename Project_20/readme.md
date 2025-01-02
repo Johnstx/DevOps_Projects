@@ -1,5 +1,5 @@
 
-## MIGRATING APPLICATIONS/SOLUTIONS TO THE CLOUD USING DOCKER
+## MIGRATING APPLICATIONS/SOLUTIONS TO THE CLOUD WITH CONTAINERIZATION
 
 ### Containerization using **DOCKER**
 
@@ -39,4 +39,4 @@ This project will be run on a local workstation, another option would be to spin
 7. [cd into the folder containing the dockerfile]()
 8. [Build the docker image]()
 9. [Run the container]()
-10. [Redo above using a more simplified method, Docker compose]
+10. [Redo above using a more simplified method, Docker compose]()

@@ -26,10 +26,10 @@ This project will implement containerization using **[Docker](https://www.docker
 
 ### LETS DOCKERIZE AN APPLICATION
 
-As a Proof Of Concept (POC), will use a simple DevOps tooling PHP website using MySQL as a Database. *both ends will make use of dockerization concept*
+As a Proof Of Concept (POC), will use a simple DevOps tooling PHP website using MySQL as a Database. *the db, which is part of the architecture will be deployed in a container*
 
 
-#### MySQL set-up
+#### [MySQL set-up]()
 *We will use  a pre-built MySQL database **container**, configure it to our taste and ensure request from PHP application is possible.*
 
 **Step 1: Pull MySQL Docker Image from [Docker Hub Registry](https://hub.docker.com/)**
