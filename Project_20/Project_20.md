@@ -154,7 +154,10 @@ The upside about this approach is that you do not have to install any client too
 
 Run the MySQL Client Container:
 
+```
 docker run --network tooling_app_network --name mysql-client -it --rm mysql mysql -h mysqlserverhost -u staxx -p
+```
+
 
 ![run MySQL script](<images/8 - connecting to mysql server with a mysql client using the user in the script.jpg>)
 
