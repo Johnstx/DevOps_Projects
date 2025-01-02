@@ -32,7 +32,7 @@ As a Proof Of Concept (POC), will use a simple DevOps tooling PHP website using 
 #### [MySQL set-up]()
 *We will use  a pre-built MySQL database **container**, configure it to our taste and ensure request from PHP application is possible.*
 
-**Step 1: Pull MySQL Docker Image from [Docker Hub Registry](https://hub.docker.com/)**
+### 1. Pull MySQL Docker Image from [Docker Hub Registry](https://hub.docker.com/)
 
 Pull the appropriate [docker image for MySQl](https://hub.docker.com/_/mysql). *Download a specific version or go for the latest release. (**note the tags**)*.
 
@@ -47,7 +47,8 @@ docker images ls
 ```
 ![docker pull and image list](<images/1 - docker pull and image ls.jpg>)
 
-**Step 2: Deploy the MySQL container**
+### 2. Deploy the MySQL container
+
 1. *After image pull is passed, next launch the container with -*
 
 ```
@@ -127,7 +128,53 @@ Therefore, create an SQL script that will create a user we can use to connect re
 Create a file and name it ``create_user.sql`` and add the below code in the file:
 
 ```
-CREATE USER '<staxx>'@'%' IDENTIFIED BY '<movement>';
-GRANT ALL PRIVILEGES ON * . * TO '<staxx>'@'%';
+CREATE USER 'staxx'@'%' IDENTIFIED BY 'movement';
+GRANT ALL PRIVILEGES ON * . * TO 'staxx'@'%';
 ```
 *NB*: Change <staxx> and <movement> to your unique name and password respectively
+![MySQL script](<images/7 - script for mysql-server user.jpg>)
+
+
+Run the script :
+```
+docker exec -i mysql-server mysql -uroot -p$MYSQL_PW < ./create_user.sql
+```
+
+**NB**: If you see a warning like below, it is acceptable to ignore:
+
+```
+mysql: [Warning] Using a password on the command line interface can be insecure.
+
+```
+
+
+### 3. Connecting to the MySQL server from a second container running the MySQL client utility
+
+The upside about this approach is that you do not have to install any client tool on your laptop, and you do not need to connect directly to the container running the MySQL server.
+
+Run the MySQL Client Container:
+
+docker run --network tooling_app_network --name mysql-client -it --rm mysql mysql -h mysqlserverhost -u staxx -p
+
+![run MySQL script](<images/8 - connecting to mysql server with a mysql client using the user in the script.jpg>)
+
+Flags used:
+
+    * --name gives the container a name
+
+    * -it runs in interactive mode and Allocate a pseudo-TTY
+
+    * --rm automatically removes the container when it exits
+
+    * --network connects a container to a network
+
+    * -h a MySQL flag specifying the MySQL server Container hostname
+
+    * -u user created from the SQL script
+
+    * -p password specified for the user created from the SQL script
+
+
+
+### 4. Prepare database schema
+Now you need to prepare a database schema so that the Tooling application can connect to it.
