@@ -166,16 +166,11 @@ docker run --network tooling_app_network --name mysql-client -it --rm mysql mysq
 Flags used:
 
 * --name gives the container a name
-
 * -it runs in interactive mode and Allocate a pseudo-TTY
-
 * --rm automatically removes the container when it exits
 * --network connects a container to a network
-
 * -h a MySQL flag specifying the MySQL server Container hostname
-
 * -u user created from the SQL script
-
 * -p password specified for the user created from the SQL script
 
 
