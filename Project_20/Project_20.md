@@ -433,19 +433,19 @@ For this, we used the jenkins pipline below:-
         }
    }
 ```
-To view the full Lab, click the link [here](https://github.com/Johnstx/Tooling-Docker-.git)
+**To view the full Lab, *click the link* [here](https://github.com/Johnstx/Tooling-Docker-.git)**
 
 
-The pipeline should through like below:
+The pipeline should go through like below:
 
 ![alt text](<images/pipeline - 8 - docker-compose  - complete - .jpg>)
 
-Image pushed to docker registry through a job in the pipeline.
+Image pushed to docker registry - a job specified in the pipeline.
 
 ![alt text](<images/pipeline - 8 - docker-compose  -registry.jpg>)
 
 
-Ensure that the tooling site http endpoint is able to return status code 200. Any other code will be determined a stage failure.
+Ensure that the tooling site http endpoint is able to return status code ```200```. Any other code will be determined a stage failure.
 
 ![alt text](<images/pipeline - 7 - browser.jpg>)
 
