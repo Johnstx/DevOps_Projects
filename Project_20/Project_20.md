@@ -197,7 +197,7 @@ Find the ``tooling_db_schema.sql`` in the ``html`` folder of cloned ``repo.``
 ```
 docker exec -i mysql-server mysql -uroot -p$MYSQL_PW < $tooling_db_schema
 ```
-5. Update the ``db_conn.php`` file with connection details to the database
+4. Update the ``db_conn.php`` file with connection details to the database
 
 ```
 $servername = "mysqlserverhost";
@@ -205,3 +205,254 @@ $username = "staxx";
 $password = "movement";
 $dbname = "toolingdb";
 ``` 
+
+5. Run the Application (in a container).
+
+Here we are implement the objective of the project, containerization.
+*Containerization of an application begins with creating a file with a special name 'Dockerfile' (no extensions).*
+*This 'Dockerfile' contains a configuration or processes that provides instructions to docker with ways to package the application into a container*.
+Here, we will utilize a Dockerfile contained in the repo cloned earlier, however in other real life scenarios, a DevOps engineer should create one as per application use case.
+
+To get more ideas on creating a ``Dockerfile`` and building a container from it, click [here](https://www.youtube.com/watch?v=hnxI-K10auY).
+
+Find official Docker best practices for writing Dockerfiles [here](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
+
+So a breakdown of steps to containerize a tooling application from  a repo (as per this case)
+
+1. Check out the repo to your local machine which should have 'Docker Engine' running.
+2. Build a 'docker image' which the tooling app will use - the 'Dockerfile' present in the repo will be used to build this 'image'.
+3. Run he ``docker build`` command, specify a tag for the version of the image that will built.
+
+```
+docker build -t tooling:0.0.1 .
+```
+*NB: Ensure you are inside the folder that has the ```Dockerfile``` and build your container:*
+
+*Notice the ```.``` at the end. This is important as that tells Docker to locate the Dockerfile in the current directory you are running the command. Otherwise, you would need to specify the absolute path to the Dockerfile.*
+
+![alt text](<images/13 - docker build tooling 001.jpg>)
+
+To confirm the build pass ok, run 
+```
+docker image ls
+``` 
+![alt text](<images/14  - docker image ls.jpg>)
+
+4. Launch the container with ``docker run`` command.
+```
+docker run --network tooling_app_network -p 8085:80 -it tooling:0.0.1
+```
+Flags - 
+ * specify the ```--network``` flag so that both the Tooling app and the database can easily connect on the same virtual network created earlier.
+ * The ```-p``` flag is used to map the container port with the host port. Within the container, apache is the webserver running and, by default, it listens on ```port 80```. You can confirm this with the CMD ["start-apache"] section of the Dockerfile. But we cannot directly use ```port 80``` on our host machine because it is already in use.
+The workaround is to use another port that is not used by the host machine. In our case, port 8085 is free, so we can map that to port 80 running in the container.
+
+Run ```docker ps -a``` to confirm container runs ok
+
+![alt text](<images/3 - docker ps.jpg>)
+
+5. Access your application via port exposed from a container
+
+If everything works, you can open the browser and type ```http://localhost:8085```
+
+![alt text](<images/16 - tooling site.jpg>)
+
+..and after log in ..
+
+![alt text](<images/16 - tooling site 2.jpg>)
+
+![alt text](<images/16 - tooling site devop tools.jpg>)
+
+Migration is successful.
+
+### Docker Registry
+
+Docker registry is a repo where docker images are stored for easy collaborations/contributions within the teams.
+
+In order to highlight the efficiency of containerization, an image of the application will be made availabe on the docker registry so that other members of the team  can  ```pull```, ```run``` and perform other intended task with the application. 
+
+A ```jenkinsfile``` (in the repo) will be used to simulate the build job of the dockerfile and then push the created image to the docker registry.
+
+
+### Deployment of the container with [Docker compose](https://docs.docker.com/compose/)
+
+Docker Compose is a tool for defining and running multi-container applications. It is the key to unlocking a streamlined and efficient development and deployment experience.
+
+Compose simplifies the control of your entire application stack, making it easy to manage services, networks, and volumes in a single, comprehensible YAML configuration file. Then, with a single command, you create and start all the services from your configuration file.
+
+*NB: Docker compose is a neater and simpler method of migrating an app to docker. The method we used is provides an insight into the different units thats involved in containerization and its useful knowledge but in practice, I would suggest applying docker compose once you have a good understanding of it. Use link on the header above to look through its documentation.*
+
+Lets refactor the tooling app POC to leverage on the use of docker compose - 
+
+1. Install docker compose on your local workstation. [Click to install](https://docs.docker.com/compose/install/)
+2. Create a file, name it ```tooling.yaml```
+3. Start writing the Docker Compose definitions with YAML syntax. The YAML file is used for defining resources like services, networks, and volumes.
+
+Here, ```tooling.yaml``` contents looks like this - 
+
+```
+
+
+version: "3.9"
+services:
+  tooling_frontend:
+    build: .
+    image: johnstx/tool
+    ports:
+      - "5000:80"
+    volumes:
+      - tooling_frontend:/var/www/html
+    links:
+      - db
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: "toolingdb"
+      MYSQL_USER: "staxx"
+      MYSQL_PASSWORD: "movement"
+      MYSQL_ROOT_PASSWORD: "password1"
+    volumes:
+      - db:/var/lib/mysql
+volumes:
+  tooling_frontend:
+  db:
+```
+
+Then run the command to start the containers
+
+```
+ docker-compose -f tooling.yaml  up -d 
+```
+![alt text](<images/pipeline - 6 - compose tooling.jpg>)
+
+
+To Verify that the compose is in the ```running``` status:
+
+```
+docker compose ls
+``` 
+![alt text](<images/pipeline - 7 - compose ls.jpg>)
+
+
+### Push image to registry with jenkinsfile
+
+A file named ```jenkinsfile`` should contain a pipeline to carry out these jobs.
+For this, we used the jenkins pipline below:-
+
+```
+   pipeline {
+
+        environment {
+        registry = "johnstx/tooling" 
+        registryCredential = 'dockerhub-login' // Jenkins credentials ID for Docker Hub
+        image_name = "johnstx/tool"
+        Docker_compose_file = "tooling.yaml"
+               // BUILD_TAG = 'master-0.0.1'
+        }
+        
+        agent any
+
+        stages {
+
+
+        stage('Clean Workspace') {
+          steps {
+                    cleanWs() // Cleans the workspace before running the pipeline
+          }
+        }
+
+
+          stage ('Checkout SCM') {
+            steps {
+              git branch: 'compose' , url : 'https://github.com/Johnstx/Tooling-Docker-.git',   credentialsId: 'github-login'
+            }
+          }
+
+
+
+          // stage('Docker Build image') {
+          //   steps {
+          //       script {
+          //           //  docker.withRegistry( '' ,  'dockerhub-login' ) {
+          //                 // Build the Docker image and assign it to dockerImage 
+          //                 dockerImage = docker.build("${env.REGISTRY}:${env.BUILD_TAG}")
+          //                  }
+          //       }
+          //   }
+
+
+           stage('Docker Build image') {
+            steps {
+                script {
+                    //  docker  build using docker-compose
+                          sh "docker-compose -f ${Docker_compose_file} build"
+                           }
+                }
+            }
+
+          stage ('tag the docker image') {
+            steps {
+              script {
+                sh "docker image tag ${image_name }:latest ${registry}:cmpse-0.0.1"
+                 } 
+                }
+          }
+
+          stage('Deploy docker image to docker hub') {
+            steps {
+              script {
+                         // log in to docker hub
+                      docker.withRegistry ( '', registryCredential) {
+                            // dockerImage.push()
+                            // push the tagged image
+                            sh "docker push ${registry}:cmpse-0.0.1"
+                 }
+              }
+            }
+          }
+      
+
+        //   stage('Clean up'){
+        //      steps{
+        //         script {
+        //             // sh "docker rmi $registry:latest"
+        //             sh "docker rmi ${registry}:feature-0.0.1"
+        //      }
+        //   }
+        // }
+ stage('Clean up') {
+            steps {
+                script {
+                    // Clean up local Docker images to save space
+                    sh "docker rmi ${image_name }:latest"
+                    sh "docker rmi ${registry}:cmpse-0.0.1"
+                  }
+             }
+         }
+        }
+   }
+```
+To view the full Lab, click the link [here](https://github.com/Johnstx/Tooling-Docker-.git)
+
+
+The pipeline should through like below:
+
+![alt text](<images/pipeline - 8 - docker-compose  - complete - .jpg>)
+
+Image pushed to docker registry through a job in the pipeline.
+
+![alt text](<images/pipeline - 8 - docker-compose  -registry.jpg>)
+
+
+Ensure that the tooling site http endpoint is able to return status code 200. Any other code will be determined a stage failure.
+
+![alt text](<images/pipeline - 7 - browser.jpg>)
+
+
+
+
+
+
+Related Projects on Migrations
+[migrating the PHP-Todo app into a containerized application]()
