@@ -6,7 +6,7 @@ To expand our experience on load balancing, we will employ the use of [Nginx](ht
 We will also ensure that connections to the web solutions are secure and that information is [encrypted in transit](https://security.berkeley.edu/data-encryption-transit-guideline) - we will also cover connection over secured HTTP (HTTPS protocol) using[ SSL/TLS technologies](https://en.wikipedia.org/wiki/Secure_Sockets_Layer), this is employed to prevent attacks called [ Man-In-The-Middle (MIMT) attack.](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)
 
 
-SSL and its newer version, TSL – is a security technology that protects connection from MITM attacks by creating an encrypted session between browser and Web server. Here we will refer this family of cryptographic protocols as SSL/TLS – even though SSL was replaced by TLS, the term is still being widely used.
+SSL and its newer version, TLS – is a security technology that protects connection from MITM attacks by creating an encrypted session between browser and Web server. Here we will refer this family of cryptographic protocols as SSL/TLS – even though SSL was replaced by TLS, the term is still being widely used.
 
 SSL/TLS uses [digital certificates](https://en.wikipedia.org/wiki/Public_key_certificate) to identify and validate a Website. A browser reads the certificate issued by a [Certificate Authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority) to make sure that the website is registered in the CA so it can be trusted to establish a secured connection.
 
